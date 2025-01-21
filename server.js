@@ -9,7 +9,7 @@ const app = express();
 const PORT = 3000;
 
 // Initialize Google Generative AI
-const genAI = new GoogleGenerativeAI('AIzaSyBk4mBWo0DxF2zhB2OhSdccvfIm2gzK4ME');
+const genAI = new GoogleGenerativeAI('enter your API key here');
 
 app.use(cors());
 app.use(express.json());
