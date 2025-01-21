@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Chatbot</title>
+    <style>
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #74ebd5, #9face6);
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Chat Icon */
+.chat-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.chat-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Chat Container */
+.chat-container {
+    width: 100%;
+    max-width: 400px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    transform: scale(0); /* Start hidden */
+    transform-origin: bottom right;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    z-index: 1000;
+}
+
+.chat-container.show {
+    transform: scale(1); /* Show when 'show' class is added */
+}
+
+/* Chat Header */
+.chat-header {
+    background: linear-gradient(135deg, #4CAF50, #388e3c);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat Body */
+.chat-body {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #f8f9fa;
+    scrollbar-width: thin;
+    scrollbar-color: #4CAF50 transparent;
+}
+
+.chat-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-body::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border-radius: 10px;
+}
+
+.chat-message {
+    padding: 12px 20px;
+    border-radius: 25px;
+    max-width: 80%;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+.user-message {
+    background: linear-gradient(135deg, #4CAF50, #81c784);
+    color: white;
+    align-self: flex-end;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bot-message {
+    background: linear-gradient(135deg, #e4e6eb, #ffffff);
+    color: #333;
+    align-self: flex-start;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat Input */
+.chat-input {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background: #f4f5f7;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background: #e9ecef;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.chat-input input:focus {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+}
+
+.chat-input button {
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    color: white;
+    padding: 12px 20px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.chat-input button:hover {
+    background: #45a049;
+    transform: scale(1.1);
+}
+
+/* Voice Button */
+#voiceButton {
+    background: linear-gradient(135deg, #4CAF50, #2e7d32);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#voiceButton:hover {
+    background: #45a049;
+    transform: scale(1.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .chat-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .chat-input button {
+        padding: 10px 15px;
+    }
+
+    #voiceButton {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <!-- Chat Icon -->
+    <div class="chat-icon" onclick="toggleChat()">
+        💬
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <h2>RoshBot</h2>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <!-- Messages will be displayed here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Ask me something..." onkeydown="if(event.key === 'Enter') sendMessage()">
+            <button id="voiceButton">🎤</button>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle chat visibility
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.classList.toggle('show');
+        }
+
+        // Function to send user message and display bot response
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim() === "") return;
+
+            displayMessage(userInput, "user");
+
+            document.getElementById('userInput').value = '';
+            const botResponse = await fetchBotResponse(userInput);
+            displayMessage(botResponse, "bot");
+            speak(botResponse);
+        }
+
+        // Fetch bot response
+        async function fetchBotResponse(message) {
+            try {
+                const response = await fetch("http://localhost:3000/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                return data.reply;
+            } catch {
+                return "Sorry, I'm having trouble responding right now.";
+            }
+        }
+
+        // Display message
+        function displayMessage(message, sender) {
+            const chatBody = document.getElementById('chatBody');
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${sender}-message`;
+            messageElement.textContent = message;
+            chatBody.appendChild(messageElement);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Speech Recognition Setup
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            document.getElementById('voiceButton').onclick = () => {
+                recognition.start();
+            };
+
+            recognition.onresult = async (event) => {
+                const transcript = event.results[0][0].transcript;
+                displayMessage(transcript, "user");
+                const botResponse = await fetchBotResponse(transcript);
+                displayMessage(botResponse, "bot");
+                speak(botResponse);
+            };
+
+            recognition.onerror = (event) => {
+                if (event.error === "no-speech") {
+                    alert("No speech detected. Please try again.");
+                } else {
+                    alert(`Error: ${event.error}`);
+                }
+            };
+        } else {
+            alert("Speech Recognition is not supported in your browser. Use Chrome for better experience.");
+            document.getElementById("voiceButton").disabled = true;
+        }
+
+        // Text-to-Speech
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
